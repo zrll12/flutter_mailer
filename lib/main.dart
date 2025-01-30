@@ -14,7 +14,10 @@ class FlutterMailer extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
