@@ -1,5 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_mailer/page/home.dart';
+import 'package:flutter_mailer/page/profile.dart';
+import 'package:flutter_mailer/page/setting.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,6 +45,14 @@ class _HomeScreenState extends State<HomeScreen> {
         destinations: bottomNavigationBarItems,
         selectedIndex: _bottomIndex,
         onDestinationSelected: _bottomIndexChanged,
+      ),
+      body: IndexedStack(
+        index: _bottomIndex,
+        children: const [
+          HomePage(),
+          ProfilePage(),
+          SettingPage(),
+        ],
       ),
     );
   }
