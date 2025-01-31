@@ -80,7 +80,33 @@ class Profile {
     await db.insert("profile", encryptedProfile);
   }
 
-  Future<void> delete(Database db) async {
+  static Future<void> delete(Database db, String email) async {
     await db.delete("profile", where: "email = ?", whereArgs: [email]);
+  }
+
+  Future<void> update(Database db, String oldEmail) async {
+    var encryptedProfile = {
+      'email': email,
+      'smtpServer': smtpServer,
+      'imapServer': imapServer,
+      'useSSL': useSSL ? 1 : 0,
+    };
+
+    if (password.isNotEmpty) {
+      var encryptKey = await storage.read(key: 'email_$oldEmail');
+      encryptKey ??= SecureRandom().generateRandomBase64String(32);
+      if (oldEmail != email) {
+        await storage.delete(key: 'email_$oldEmail');
+      }
+      await storage.write(key: 'email_$email', value: encryptKey);
+
+      final iv = encrypt.IV.fromUtf8(encryptKey.substring(0, 16));
+      encryptedProfile["password"] =
+          encrypt.Encrypter(encrypt.AES(encrypt.Key.fromUtf8(encryptKey)))
+              .encrypt(password, iv: iv)
+              .base64;
+    }
+
+    await db.update("profile", encryptedProfile, where: "email = ?", whereArgs: [oldEmail]);
   }
 }
