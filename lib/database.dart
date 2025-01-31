@@ -11,6 +11,7 @@ import 'model/profile.dart';
 class DatabaseHelper extends ChangeNotifier {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   static late Database _db;
+  static bool _initialized = false;
 
   final storage = FlutterSecureStorage();
   final String _dbName = 'flutter_mailer.db';
@@ -24,17 +25,15 @@ class DatabaseHelper extends ChangeNotifier {
     return _instance;
   }
 
-
-
-  void _init() async {
+  Future<void> _init() async {
+    if (_initialized) return;
+    
     _db = await openDatabase(
       _dbName,
       version: _dbVersion,
     );
 
-    // _db.execute('''DROP TABLE IF EXISTS profile''');
-
-    _db.execute('''
+    await _db.execute('''
           CREATE TABLE IF NOT EXISTS profile (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT,
@@ -44,9 +43,18 @@ class DatabaseHelper extends ChangeNotifier {
             useSSL INTEGER
           )
         ''');
+    
+    _initialized = true;
+  }
+
+  Future<void> ensureInitialized() async {
+    if (!_initialized) {
+      await _init();
+    }
   }
 
   Future<void> addProfile(Profile profile) async {
+    await ensureInitialized();
     var encryptKey = await storage.read(key: 'email_${profile.email}');
     var encryptedProfile = profile.toJson();
 
@@ -68,6 +76,7 @@ class DatabaseHelper extends ChangeNotifier {
   }
 
   Future<List<Profile>> getProfiles() async {
+    await ensureInitialized();
     List<Map<String, dynamic>> profiles = await _db.query("profile");
 
     return Future.wait(profiles.map((map) async {
@@ -101,7 +110,7 @@ class SecureRandom {
   }
 
   String generateRandomBase64String(int length) {
-    final bytes = generateRandomBytes(length);
+    final bytes = generateRandomBytes((length * 3 / 4).ceil());
     return base64.encode(bytes);
   }
 }
