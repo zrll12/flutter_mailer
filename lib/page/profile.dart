@@ -17,8 +17,11 @@ class _ProfilePageState extends State<ProfilePage> {
   void addUser(context) {
     var result = Navigator.pushNamed(context, 'add_profile');
     result.then((value) => {
-          if (value != null)
-            {databaseHelper.db.then((db) => (value as Profile).insert(db))}
+          if (value != null) {
+            databaseHelper.db
+                .then((db) => (value as Profile).insert(db))
+                .then((_) => _readProfile())
+          }
         });
   }
 
@@ -50,12 +53,10 @@ class _ProfilePageState extends State<ProfilePage> {
           trailing: Icon(Icons.keyboard_arrow_right),
           onTap: () {
             Navigator.pushNamed(context, 'profile_details',
-                arguments: profile.toJson())
-            .then((result) => {
-              if (result == true) {
-                _readProfile()
-              }
-            });
+                    arguments: profile.toJson())
+                .then((result) => {
+                      if (result == true) {_readProfile()}
+                    });
           },
         )
     ];
