@@ -1,12 +1,6 @@
-import 'dart:convert';
-import 'dart:math';
-import 'dart:typed_data';
-
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart';
-import 'model/profile.dart';
 
 class DatabaseHelper extends ChangeNotifier {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -56,24 +50,5 @@ class DatabaseHelper extends ChangeNotifier {
   Future<Database> get db async {
     await ensureInitialized();
     return _db;
-  }
-}
-
-class SecureRandom {
-  final Random _random;
-
-  SecureRandom() : _random = Random.secure();
-
-  Uint8List generateRandomBytes(int length) {
-    final Uint8List randomBytes = Uint8List(length);
-    for (int i = 0; i < length; i++) {
-      randomBytes[i] = _random.nextInt(256);
-    }
-    return randomBytes;
-  }
-
-  String generateRandomBase64String(int length) {
-    final bytes = generateRandomBytes((length * 3 / 4).ceil());
-    return base64.encode(bytes);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 import '../database.dart';
 
@@ -66,9 +67,10 @@ class Profile {
     var encryptKey = await storage.read(key: 'email_$email');
 
     if (encryptKey == null) {
-      encryptKey = SecureRandom().generateRandomBase64String(32);
+      encryptKey = Uuid().v4().replaceAll("-", "");
       await storage.write(key: 'email_$email', value: encryptKey);
     }
+
 
     // Use first 16 bytes of encryption key as IV
     final iv = encrypt.IV.fromUtf8(encryptKey.substring(0, 16));
@@ -94,7 +96,7 @@ class Profile {
 
     if (password.isNotEmpty) {
       var encryptKey = await storage.read(key: 'email_$oldEmail');
-      encryptKey ??= SecureRandom().generateRandomBase64String(32);
+      encryptKey ??= Uuid().v4().replaceAll("-", "");
       if (oldEmail != email) {
         await storage.delete(key: 'email_$oldEmail');
       }
