@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
-
 import 'model/profile.dart';
 
 class DatabaseHelper extends ChangeNotifier {
@@ -51,7 +51,7 @@ class DatabaseHelper extends ChangeNotifier {
     var encryptedProfile = profile.toJson();
 
     if (encryptKey == null) {
-      encryptKey = Uuid().v4().replaceAll("-", "");
+      encryptKey = SecureRandom().generateRandomBase64String(32);
       await storage.write(key: 'email_${profile.email}', value: encryptKey);
     }
 
@@ -84,5 +84,24 @@ class DatabaseHelper extends ChangeNotifier {
       
       return Profile.fromJson(decryptedProfile);
     }));
+  }
+}
+
+class SecureRandom {
+  final Random _random;
+
+  SecureRandom() : _random = Random.secure();
+
+  Uint8List generateRandomBytes(int length) {
+    final Uint8List randomBytes = Uint8List(length);
+    for (int i = 0; i < length; i++) {
+      randomBytes[i] = _random.nextInt(256);
+    }
+    return randomBytes;
+  }
+
+  String generateRandomBase64String(int length) {
+    final bytes = generateRandomBytes(length);
+    return base64.encode(bytes);
   }
 }
