@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mailer/model/profile.dart';
 
 class AddProfilePage extends StatefulWidget {
   const AddProfilePage({super.key});
@@ -11,15 +12,26 @@ class _AddProfilePageState extends State<AddProfilePage> {
   bool _isLoading = false;
   String email = '';
   String password = '';
-  String popServer = '';
   String imapServer = '';
+  String smtpServer = '';
+  bool useSSL = false;
 
   void addProfile() {
     print('Add Profile');
     setState(() {
       _isLoading = true;
     });
-    // Add Profile
+
+    Profile profile = Profile(
+      email: email,
+      password: password,
+      smtpServer: smtpServer,
+      imapServer: imapServer,
+      useSSL: useSSL,
+    );
+
+    Navigator.pop(context, profile);
+
     setState(() {
       _isLoading = false;
     });
@@ -60,11 +72,11 @@ class _AddProfilePageState extends State<AddProfilePage> {
               ),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'POP Server',
+                  labelText: 'SMTP Server',
                 ),
                 onChanged: (value) {
                   setState(() {
-                    popServer = value;
+                    smtpServer = value;
                   });
                 },
               ),
@@ -78,10 +90,24 @@ class _AddProfilePageState extends State<AddProfilePage> {
                   });
                 },
               ),
+              Row(
+                children: [
+                  const Text('Use SSL'),
+                  Spacer(),
+                  Switch(
+                    value: useSSL,
+                    onChanged: (value) {
+                      setState(() {
+                        useSSL = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
               FilledButton(
                 onPressed: email.isEmpty ||
                         password.isEmpty ||
-                        popServer.isEmpty ||
+                        smtpServer.isEmpty ||
                         imapServer.isEmpty ||
                         _isLoading
                     ? null
