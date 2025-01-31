@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mailer/page/add_profile.dart';
+import 'package:flutter_mailer/page/profile/add_profile.dart';
 import 'package:flutter_mailer/screen/home_screen.dart';
+
+import 'page/profile/profile_details.dart';
 
 void main() {
   runApp(const FlutterMailer());
@@ -25,6 +27,7 @@ class FlutterMailer extends StatelessWidget {
       routes: {
         'home': (context) => const HomeScreen(),
         'add_profile': (context) => const AddProfilePage(),
+        'profile_details': (context) => ProfileDetails(),
       },
     );
   }

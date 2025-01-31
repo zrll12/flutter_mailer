@@ -4,34 +4,75 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mailer/database.dart';
 import 'package:flutter_mailer/model/profile.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   DatabaseHelper databaseHelper = DatabaseHelper();
+  List<Profile> _profiles = [];
+  bool loading = true;
 
   void addUser(context) {
-    print('Add User');
     var result = Navigator.pushNamed(context, 'add_profile');
     result.then((value) => {
       if (value != null) {
         databaseHelper.addProfile(value as Profile)
+        .then((_) => {_readProfile()})
       }
     });
   }
 
-  void readProfile() {
+  void _readProfile() {
+    setState(() {
+      loading = true;
+    });
     databaseHelper.getProfiles()
     .then((value) => {
-      print(jsonEncode(value))
+      setState(() {
+        print(jsonEncode(value));
+        _profiles = value;
+        loading = false;
+      })
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _readProfile();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var list = <ListTile>[
+      for (var profile in _profiles)
+        ListTile(
+          title: Text(profile.email),
+          subtitle: Text(profile.imapServer),
+          trailing: Icon(Icons.keyboard_arrow_right),
+          onTap: () {
+            Navigator.pushNamed(context, 'profile_details', arguments: profile.toJson());
+          },
+        )
+    ];
+
     return Scaffold(
       body: Center(
         child: Column(
           children: [
-            OutlinedButton(onPressed: readProfile, child: const Text("Read Profile")),
+            if (loading)
+              const CircularProgressIndicator()
+            else
+              Expanded(
+                child: ListView(
+                  children: list,
+                ),
+              ),
+            OutlinedButton(onPressed: _readProfile, child: const Text("Refresh")),
           ],
         ),
       ),
