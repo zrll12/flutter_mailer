@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/database.dart';
 import 'package:flutter_mailer/model/profile.dart';
@@ -19,24 +17,20 @@ class _ProfilePageState extends State<ProfilePage> {
   void addUser(context) {
     var result = Navigator.pushNamed(context, 'add_profile');
     result.then((value) => {
-      if (value != null) {
-        databaseHelper.addProfile(value as Profile)
-        .then((_) => {_readProfile()})
-      }
-    });
+          if (value != null)
+            {databaseHelper.db.then((db) => (value as Profile).insert(db))}
+        });
   }
 
   void _readProfile() {
     setState(() {
       loading = true;
     });
-    databaseHelper.getProfiles()
-    .then((value) => {
+    databaseHelper.db.then((db) => Profile.getProfiles(db)).then((value) {
       setState(() {
-        print(jsonEncode(value));
         _profiles = value;
         loading = false;
-      })
+      });
     });
   }
 
@@ -55,7 +49,13 @@ class _ProfilePageState extends State<ProfilePage> {
           subtitle: Text(profile.imapServer),
           trailing: Icon(Icons.keyboard_arrow_right),
           onTap: () {
-            Navigator.pushNamed(context, 'profile_details', arguments: profile.toJson());
+            Navigator.pushNamed(context, 'profile_details',
+                arguments: profile.toJson())
+            .then((result) => {
+              if (result == true) {
+                _readProfile()
+              }
+            });
           },
         )
     ];
@@ -72,7 +72,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: list,
                 ),
               ),
-            OutlinedButton(onPressed: _readProfile, child: const Text("Refresh")),
+            OutlinedButton(
+                onPressed: _readProfile, child: const Text("Refresh")),
           ],
         ),
       ),
