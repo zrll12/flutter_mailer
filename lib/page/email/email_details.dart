@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/model/email.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EmailDetails extends StatefulWidget {
   const EmailDetails({super.key});
@@ -21,6 +22,14 @@ class _EmailDetailsState extends State<EmailDetails> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.transparent)
       ..enableZoom(false)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) {
+            launchUrl(Uri.parse(request.url), mode: LaunchMode.externalApplication);
+            return NavigationDecision.prevent;
+          },
+        ),
+      )
       ..addJavaScriptChannel(
         'Height',
         onMessageReceived: (message) {
