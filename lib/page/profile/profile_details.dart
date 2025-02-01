@@ -4,7 +4,7 @@ import 'package:flutter_mailer/database.dart';
 import '../../model/profile.dart';
 
 class ProfileDetails extends StatefulWidget {
-  ProfileDetails({super.key});
+  const ProfileDetails({super.key});
 
   @override
   State<ProfileDetails> createState() => _ProfileDetailsState();
@@ -18,6 +18,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
   String smtpServer = '';
   String password = '';
   bool useSSL = false;
+  int id = 0;
 
   // 添加控制器作为成员变量
   late TextEditingController emailController;
@@ -39,6 +40,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
       smtpServer: smtpServer,
       imapServer: imapServer,
       useSSL: useSSL,
+      id: id,
     );
 
     databaseHelper.db
@@ -82,6 +84,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final Map<String, dynamic>? args =
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      id = args?['id'] ?? 0;
+
       if (args != null) {
         setState(() {
           oldEmail = args['email'] ?? '';

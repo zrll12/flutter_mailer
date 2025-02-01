@@ -3,8 +3,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
-import '../database.dart';
-
 class Profile {
   final storage = FlutterSecureStorage();
 
@@ -13,8 +11,10 @@ class Profile {
   final String imapServer;
   final String password;
   final bool useSSL;
+  final int id;
 
   Profile({
+    required this.id,
     required this.email,
     required this.smtpServer,
     required this.imapServer,
@@ -35,6 +35,7 @@ class Profile {
   factory Profile.fromJson(Map<String, dynamic> json) {
 
     return Profile(
+      id: json['id'],
       email: json['email'],
       smtpServer: json['smtpServer'],
       imapServer: json['imapServer'],

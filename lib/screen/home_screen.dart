@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: IndexedStack(
         index: _bottomIndex,
         children: [
-          const HomePage(),
+          HomePage(),
           ProfilePage(),
           const SettingPage(),
         ],

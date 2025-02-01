@@ -3,7 +3,7 @@ import 'package:flutter_mailer/database.dart';
 import 'package:flutter_mailer/model/profile.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({super.key});
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -45,20 +45,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    var list = <ListTile>[
-      for (var profile in _profiles)
+    var list = <Widget>[
+      for (var i = 0; i < _profiles.length; i++) ...[
         ListTile(
-          title: Text(profile.email),
-          subtitle: Text(profile.imapServer),
+          title: Text(_profiles[i].email),
+          subtitle: Text(_profiles[i].imapServer),
           trailing: Icon(Icons.keyboard_arrow_right),
           onTap: () {
             Navigator.pushNamed(context, 'profile_details',
-                    arguments: profile.toJson())
+                    arguments: _profiles[i].toJson())
                 .then((result) => {
                       if (result == true) {_readProfile()}
                     });
           },
-        )
+        ),
+        if (i < _profiles.length - 1) Divider(),
+      ]
     ];
 
     return Scaffold(
@@ -79,6 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'add_profile_fab',
         onPressed: () => addUser(context),
         child: const Icon(Icons.add),
       ),

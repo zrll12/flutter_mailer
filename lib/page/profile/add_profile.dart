@@ -17,7 +17,6 @@ class _AddProfilePageState extends State<AddProfilePage> {
   bool useSSL = false;
 
   void addProfile() {
-    print('Add Profile');
     setState(() {
       _isLoading = true;
     });
@@ -28,6 +27,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
       smtpServer: smtpServer,
       imapServer: imapServer,
       useSSL: useSSL,
+      id: 0,
     );
 
     Navigator.pop(context, profile);

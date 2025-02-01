@@ -37,6 +37,21 @@ class DatabaseHelper extends ChangeNotifier {
             useSSL INTEGER
           )
         ''');
+
+    await _db.execute('''
+          CREATE TABLE IF NOT EXISTS email (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            mailbox TEXT,
+            profileId INTEGER,
+            sequenceId INTEGER,
+            text TEXT,
+            html TEXT,
+            subject TEXT,
+            sender TEXT,
+            recipients TEXT,
+            date TEXT
+          )
+        ''');
     
     _initialized = true;
   }
