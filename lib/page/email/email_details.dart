@@ -87,24 +87,24 @@ class _EmailDetailsState extends State<EmailDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Email Detail'),
+        title: Text(_email?.subject ?? 'No Subject Email'),
       ),
       body: SingleChildScrollView(
         child: Container(
-          margin: const EdgeInsets.all(20),
+          margin: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('From: ${_email!.sender}'),
+              Text(_email?.subject ?? 'No Subject Email', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               SizedBox(height: 15),
+              if (_email!.sender != 'null') ...[
+                Text('From: ${_email!.sender}'),
+                SizedBox(height: 15),
+              ],
               Text('To: ${_email!.recipients}'),
-              SizedBox(height: 15),
-              Text('Subject: ${_email!.subject}'),
               SizedBox(height: 15),
               Text('Date: ${_email!.date}'),
               SizedBox(height: 15),
-              Text('Content:', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
               _email!.html != 'null' && _email!.html.isNotEmpty
                   ? SizedBox(
                       height: _webViewHeight,
