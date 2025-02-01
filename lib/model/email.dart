@@ -92,6 +92,7 @@ class Email {
         'email',
         where: whereClause,
         whereArgs: whereArgs,
+        orderBy: 'date DESC',
       );
       return emails.map((e) => Email.fromMap(e)).toList();
     }

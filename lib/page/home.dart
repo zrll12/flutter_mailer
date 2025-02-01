@@ -100,6 +100,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _loadEmails();
+
     var list = <Widget>[
       for (var i = 0; i < _emails.length; i++) ...[
         ListTile(
