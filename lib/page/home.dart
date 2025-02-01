@@ -105,15 +105,26 @@ class _HomePageState extends State<HomePage> {
         ListTile(
           title: Text(_emails[i].subject),
           subtitle: Text(
-            '${formatDate(_emails[i].date, [yyyy, '-', mm, '-', dd, ' ', HH, ':', mm])} ${_emails[i].sender == 'null' ? "" : _emails[i].sender}',
+            '${formatDate(_emails[i].date, [
+                  yyyy,
+                  '-',
+                  mm,
+                  '-',
+                  dd,
+                  ' ',
+                  HH,
+                  ':',
+                  mm
+                ])} ${_emails[i].sender == 'null' ? "" : _emails[i].sender}',
             overflow: TextOverflow.ellipsis,
           ),
           trailing: Icon(Icons.keyboard_arrow_right),
           onTap: () {
-            print(_emails[i].subject);
+            Navigator.pushNamed(context, 'email_details',
+                arguments: _emails[i].toMap());
           },
         ),
-        if (i < _emails.length - 1) Divider(),  // 只在非最后一项添加分割线
+        if (i < _emails.length - 1) Divider(), // 只在非最后一项添加分割线
       ]
     ];
 

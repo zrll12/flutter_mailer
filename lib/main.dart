@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mailer/page/profile/add_profile.dart';
 import 'package:flutter_mailer/screen/home_screen.dart';
 
+import 'page/email/email_details.dart';
 import 'page/profile/profile_details.dart';
 
 void main() {
@@ -28,6 +29,7 @@ class FlutterMailer extends StatelessWidget {
         'home': (context) => const HomeScreen(),
         'add_profile': (context) => const AddProfilePage(),
         'profile_details': (context) => ProfileDetails(),
+        'email_details': (context) => const EmailDetails(),
       },
     );
   }
