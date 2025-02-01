@@ -45,5 +45,22 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+    
+    <!-- 添加网络权限描述 -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+
+    <!-- 添加本地网络使用权限描述 -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>需要访问本地网络以连接邮件服务器</string>
+
+    <!-- 添加网络连接权限描述 -->
+    <key>NSNetworkingUsageDescription</key>
+    <string>需要网络连接以收发邮件</string>
+    
+    <!-- ... 其他已有配置 ... -->
 </dict>
 </plist>
