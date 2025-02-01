@@ -29,7 +29,7 @@ class FlutterMailer extends StatelessWidget {
         'home': (context) => const HomeScreen(),
         'add_profile': (context) => const AddProfilePage(),
         'profile_details': (context) => ProfileDetails(),
-        'email_details': (context) => const EmailDetails(),
+        'email_details': (context) => EmailDetails(),
       },
     );
   }

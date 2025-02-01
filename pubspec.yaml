@@ -38,6 +38,7 @@ dependencies:
   uuid: ^4.5.1
   enough_mail: ^2.1.6
   date_format: ^2.0.9
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:
