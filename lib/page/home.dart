@@ -19,69 +19,102 @@ class _HomePageState extends State<HomePage> {
   List<Email> _emails = [];
 
   Future<void> _freshEmails() async {
-    databaseHelper.db.then((db) => Profile.getProfiles(db)).then((value) async {
-      _profiles = value;
-
-      for (var profile in _profiles) {
-        final client = ImapClient(isLogEnabled: false);
-        try {
-          var server = profile.imapServer.split(":");
-          if (server.length != 2) {
-            server = [profile.imapServer, "993"];
-          }
-          await client.connectToServer(server[0], int.parse(server[1]),
-              isSecure: profile.useSSL);
-          await client.id(
-              clientId: Id(
-            name: 'Flutter Mailer',
-            version: '1.0',
-            vendor: 'Flutter',
-          ));
-          var password = await profile.getPassword();
-          if (password == null) {
-            continue;
-          }
-          await client.login(profile.email, password);
-
-          var boxes = await client.listMailboxes();
-
-          // for (var folder in boxes) {
-          try {
-            var folder = boxes.first;
-            await client.selectMailbox(folder);
-
-            var messages = await client.fetchRecentMessages(
-              messageCount: 10,
+    try {
+      databaseHelper.db.then((db) => Profile.getProfiles(db)).then((value) async {
+        _profiles = value;
+        
+        if (_profiles.isEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('没有配置邮箱账号'),
+                backgroundColor: Colors.orange,
+                duration: Duration(seconds: 2),
+              ),
             );
-
-            for (var message in messages.messages) {
-              Email email = Email(
-                id: null,
-                profileId: profile.id,
-                sender: message.sender.toString(),
-                recipients: message.recipients.toString(),
-                subject: message.decodeSubject() ?? 'No Subject',
-                text: message.decodeTextPlainPart() ?? '',
-                html: message.decodeTextHtmlPart() ?? '',
-                date: message.decodeDate() ?? DateTime.now(),
-                sequenceId: message.sequenceId ?? 0,
-                mailbox: folder.name,
-              );
-              databaseHelper.db
-                  .then((db) => email.insert(db))
-                  .then((_) => _loadEmails());
-            }
-          } catch (e) {
-            continue;
           }
-          // }
-        } catch (e) {
-          print('Error processing profile ${profile.email}: $e');
-        } finally {
-          await client.disconnect();
+          return;
         }
+
+        for (var profile in _profiles) {
+          final client = ImapClient(isLogEnabled: false);
+          try {
+            var server = profile.imapServer.split(":");
+            if (server.length != 2) {
+              server = [profile.imapServer, "993"];
+            }
+            await client.connectToServer(server[0], int.parse(server[1]),
+                isSecure: profile.useSSL);
+            await client.id(
+                clientId: Id(
+              name: 'Flutter Mailer',
+              version: '1.0',
+              vendor: 'Flutter',
+            ));
+            var password = await profile.getPassword();
+            if (password == null) {
+              continue;
+            }
+            await client.login(profile.email, password);
+
+            var boxes = await client.listMailboxes();
+
+            // for (var folder in boxes) {
+            try {
+              var folder = boxes.first;
+              await client.selectMailbox(folder);
+
+              var messages = await client.fetchRecentMessages(
+                messageCount: 10,
+              );
+
+              for (var message in messages.messages) {
+                Email email = Email(
+                  id: null,
+                  profileId: profile.id,
+                  sender: message.sender.toString(),
+                  recipients: message.recipients.toString(),
+                  subject: message.decodeSubject() ?? 'No Subject',
+                  text: message.decodeTextPlainPart() ?? '',
+                  html: message.decodeTextHtmlPart() ?? '',
+                  date: message.decodeDate() ?? DateTime.now(),
+                  sequenceId: message.sequenceId ?? 0,
+                  mailbox: folder.name,
+                );
+                databaseHelper.db
+                    .then((db) => email.insert(db))
+                    .then((_) => _loadEmails());
+              }
+            } catch (e) {
+              continue;
+            }
+            // }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${profile.email} 刷新失败: ${e.toString()}'),
+                  backgroundColor: Colors.red,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          } finally {
+            await client.disconnect();
+          }
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('刷新失败: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
-    });
+    }
   }
 
   Future<void> _loadEmails() async {
