@@ -21,7 +21,6 @@ class _EmailDetailsState extends State<EmailDetails> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.transparent)
-      ..enableZoom(false)
       ..setNavigationDelegate(
         NavigationDelegate(
           onNavigationRequest: (NavigationRequest request) {
@@ -110,7 +109,7 @@ class _EmailDetailsState extends State<EmailDetails> {
                       height: _webViewHeight,
                       child: WebViewWidget(controller: _controller),
                     )
-                  : Text(_email!.text),
+                  : SelectableText(_email!.text),
             ],
           ),
         ),
