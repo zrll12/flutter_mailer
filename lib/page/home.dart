@@ -3,7 +3,6 @@ import 'package:enough_mail/enough_mail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/database.dart';
 import 'package:flutter_mailer/model/email.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../model/profile.dart';
 
@@ -23,106 +22,101 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _freshEmails() async {
     try {
-      databaseHelper.db
-          .then((db) => Profile.getProfiles(db))
-          .then((value) async {
-        _profiles = value;
+      var db = await databaseHelper.db;
+      _profiles = await Profile.getProfiles(db);
 
-        if (_profiles.isEmpty) {
+      if (_profiles.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('没有配置邮箱账号'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+        return;
+      }
+
+      for (var profile in _profiles) {
+        final client = ImapClient(isLogEnabled: false);
+        try {
+          var server = profile.imapServer.split(":");
+          if (server.length != 2) {
+            server = [profile.imapServer, "993"];
+          }
+          await client.connectToServer(server[0], int.parse(server[1]),
+              isSecure: profile.useSSL);
+          await client.id(
+              clientId: Id(
+            name: 'Flutter Mailer',
+            version: '1.0',
+            vendor: 'Flutter',
+          ));
+          var password = await profile.getPassword();
+          if (password == null) {
+            continue;
+          }
+          await client.login(profile.email, password);
+
+          var boxes = await client.listMailboxes();
+
+          for (var folder in boxes) {
+            try {
+              await client.selectMailbox(folder);
+
+              var messages = await client.fetchRecentMessages();
+
+              for (var message in messages.messages) {
+                Email email = Email(
+                  id: null,
+                  profileId: profile.id,
+                  sender: message.sender.toString(),
+                  recipients: message.recipients.toString(),
+                  subject: message.decodeSubject() ?? 'No Subject',
+                  text: message.decodeTextPlainPart() ?? '',
+                  html: message.decodeTextHtmlPart() ?? '',
+                  date: message.decodeDate() ?? DateTime.now(),
+                  sequenceId: message.sequenceId ?? 0,
+                  mailbox: folder.name,
+                );
+                databaseHelper.db
+                    .then((db) => email.insert(db))
+                    .then((_) => _loadEmails());
+              }
+            } catch (e) {
+              continue;
+            }
+          }
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('没有配置邮箱账号'),
-                backgroundColor: Colors.orange,
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: Text('Freshening ${profile.email} succeed'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
               ),
             );
           }
-          return;
-        }
-
-        for (var profile in _profiles) {
-          final client = ImapClient(isLogEnabled: false);
-          try {
-            var server = profile.imapServer.split(":");
-            if (server.length != 2) {
-              server = [profile.imapServer, "993"];
-            }
-            await client.connectToServer(server[0], int.parse(server[1]),
-                isSecure: profile.useSSL);
-            await client.id(
-                clientId: Id(
-              name: 'Flutter Mailer',
-              version: '1.0',
-              vendor: 'Flutter',
-            ));
-            var password = await profile.getPassword();
-            if (password == null) {
-              continue;
-            }
-            await client.login(profile.email, password);
-
-            var boxes = await client.listMailboxes();
-
-            for (var folder in boxes) {
-              try {
-                await client.selectMailbox(folder);
-
-                var messages = await client.fetchRecentMessages();
-
-                for (var message in messages.messages) {
-                  Email email = Email(
-                    id: null,
-                    profileId: profile.id,
-                    sender: message.sender.toString(),
-                    recipients: message.recipients.toString(),
-                    subject: message.decodeSubject() ?? 'No Subject',
-                    text: message.decodeTextPlainPart() ?? '',
-                    html: message.decodeTextHtmlPart() ?? '',
-                    date: message.decodeDate() ?? DateTime.now(),
-                    sequenceId: message.sequenceId ?? 0,
-                    mailbox: folder.name,
-                  );
-                  databaseHelper.db
-                      .then((db) => email.insert(db))
-                      .then((_) => _loadEmails());
-                }
-                Fluttertoast.showToast(msg: 'refreshed ${folder.name}');
-
-              } catch (e) {
-                continue;
-              }
-            }
-
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${profile.email} 刷新成功'),
-                  backgroundColor: Colors.green,
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            }
-          } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${profile.email} 刷新失败: ${e.toString()}'),
-                  backgroundColor: Colors.red,
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            }
-          } finally {
-            await client.disconnect();
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Freshening ${profile.email} failed: ${e.toString()}'),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
           }
+        } finally {
+          await client.disconnect();
         }
-      });
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('刷新失败: ${e.toString()}'),
+            content: Text('Freshening ${e.toString()} failed'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -145,7 +139,7 @@ class _HomePageState extends State<HomePage> {
         db,
         profileId: _selectedProfiles.isEmpty ? null : _selectedProfiles.first,
       );
-      
+
       setState(() {
         _profiles = profiles;
         _emails = emails;
@@ -165,7 +159,8 @@ class _HomePageState extends State<HomePage> {
               child: DropdownButton<int>(
                 isExpanded: true,
                 hint: const Text('Select Account'),
-                value: _selectedProfiles.isEmpty ? null : _selectedProfiles.first,
+                value:
+                    _selectedProfiles.isEmpty ? null : _selectedProfiles.first,
                 items: [
                   const DropdownMenuItem<int>(
                     value: null,
@@ -248,16 +243,17 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                children: list,
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await _freshEmails();
+                },
+                child: ListView(
+                  children: list,
+                ),
               ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _freshEmails,
-        child: const Icon(Icons.refresh),
       ),
     );
   }

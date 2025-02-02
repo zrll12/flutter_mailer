@@ -75,8 +75,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: list,
                 ),
               ),
-            OutlinedButton(
-                onPressed: _readProfile, child: const Text("Refresh")),
           ],
         ),
       ),
