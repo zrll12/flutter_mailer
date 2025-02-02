@@ -18,6 +18,8 @@ class _HomePageState extends State<HomePage> {
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Profile> _profiles = [];
   List<Email> _emails = [];
+  List<String> _selectedFolders = [];
+  List<int> _selectedProfiles = [];
 
   Future<void> _freshEmails() async {
     try {
@@ -129,25 +131,91 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  List<String> _availableFolders = []; // 添加这一行来存储可用的文件夹
+
   Future<void> _loadEmails() async {
-    databaseHelper.db.then((db) => Email.getEmails(db)).then((value) {
+    databaseHelper.db.then((db) async {
+      final profiles = await Profile.getProfiles(db);
+      final emails = await Email.getEmails(
+        db,
+        profileIds: _selectedProfiles.isEmpty ? null : _selectedProfiles,
+        mailboxes: _selectedFolders.isEmpty ? null : _selectedFolders,
+      );
+      final folders = await Email.getMailboxes(
+        db,
+        profileId: _selectedProfiles.isEmpty ? null : _selectedProfiles.first,
+      );
+      
       setState(() {
-        _emails = value;
+        _profiles = profiles;
+        _emails = emails;
+        _availableFolders = folders;
       });
     });
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadEmails();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    _loadEmails();
-
     var list = <Widget>[
+      Container(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: DropdownButton<int>(
+                isExpanded: true,
+                hint: const Text('Select Account'),
+                value: _selectedProfiles.isEmpty ? null : _selectedProfiles.first,
+                items: [
+                  const DropdownMenuItem<int>(
+                    value: null,
+                    child: Text('All Accounts'),
+                  ),
+                  ..._profiles.map((profile) => DropdownMenuItem<int>(
+                        value: profile.id,
+                        child: Text(
+                          profile.email,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      )),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedProfiles = value != null ? [value] : [];
+                    _loadEmails();
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                hint: const Text('Select Folder'),
+                value: _selectedFolders.isEmpty ? null : _selectedFolders.first,
+                items: [
+                  const DropdownMenuItem<String>(
+                    value: null,
+                    child: Text('All Folders'),
+                  ),
+                  ..._availableFolders.map((folder) => DropdownMenuItem<String>(
+                        value: folder,
+                        child: Text(folder),
+                      )),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedFolders = value != null ? [value] : [];
+                    _loadEmails();
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      // Existing email list
       for (var i = 0; i < _emails.length; i++) ...[
         ListTile(
           title: Text(_emails[i].subject),

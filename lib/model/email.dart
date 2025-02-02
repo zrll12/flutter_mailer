@@ -71,21 +71,21 @@ class Email {
 
   static Future<List<Email>> getEmails(
       Database db, {
-      int? profileId,
-      String? mailbox,
+      List<int>? profileIds,
+      List<String>? mailboxes,
     }) async {
       String? whereClause;
       List<dynamic> whereArgs = [];
   
-      if (profileId != null && mailbox != null) {
-        whereClause = 'profileId = ? AND mailbox = ?';
-        whereArgs = [profileId, mailbox];
-      } else if (profileId != null) {
-        whereClause = 'profileId = ?';
-        whereArgs = [profileId];
-      } else if (mailbox != null) {
-        whereClause = 'mailbox = ?';
-        whereArgs = [mailbox];
+      if (profileIds != null && profileIds.isNotEmpty && mailboxes != null && mailboxes.isNotEmpty) {
+        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')}) AND mailbox IN (${List.filled(mailboxes.length, '?').join(',')})';
+        whereArgs = [...profileIds, ...mailboxes];
+      } else if (profileIds != null && profileIds.isNotEmpty) {
+        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')})';
+        whereArgs = profileIds;
+      } else if (mailboxes != null && mailboxes.isNotEmpty) {
+        whereClause = 'mailbox IN (${List.filled(mailboxes.length, '?').join(',')})';
+        whereArgs = mailboxes;
       }
   
       final List<Map<String, dynamic>> emails = await db.query(
@@ -96,4 +96,25 @@ class Email {
       );
       return emails.map((e) => Email.fromMap(e)).toList();
     }
+
+  static Future<List<String>> getMailboxes(Database db, {int? profileId}) async {
+    String? whereClause;
+    List<dynamic> whereArgs = [];
+
+    if (profileId != null) {
+      whereClause = 'profileId = ?';
+      whereArgs = [profileId];
+    }
+
+    final List<Map<String, dynamic>> results = await db.query(
+      'email',
+      distinct: true,
+      columns: ['mailbox'],
+      where: whereClause,
+      whereArgs: whereArgs,
+      orderBy: 'mailbox ASC',
+    );
+    
+    return results.map((e) => e['mailbox'] as String).toList();
+  }
 }
