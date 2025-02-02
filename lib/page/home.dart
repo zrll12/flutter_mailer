@@ -149,6 +149,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadEmails();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var list = <Widget>[
       Container(
@@ -234,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                 arguments: _emails[i].toMap());
           },
         ),
-        if (i < _emails.length - 1) Divider(),
+        if (i < _emails.length - 1) Divider(thickness: 0.8, indent: 20, endIndent: 30,),
       ]
     ];
 
