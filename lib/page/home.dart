@@ -3,6 +3,7 @@ import 'package:enough_mail/enough_mail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/database.dart';
 import 'package:flutter_mailer/model/email.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../model/profile.dart';
 
@@ -20,9 +21,11 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _freshEmails() async {
     try {
-      databaseHelper.db.then((db) => Profile.getProfiles(db)).then((value) async {
+      databaseHelper.db
+          .then((db) => Profile.getProfiles(db))
+          .then((value) async {
         _profiles = value;
-        
+
         if (_profiles.isEmpty) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -59,36 +62,45 @@ class _HomePageState extends State<HomePage> {
 
             var boxes = await client.listMailboxes();
 
-            // for (var folder in boxes) {
-            try {
-              var folder = boxes.first;
-              await client.selectMailbox(folder);
+            for (var folder in boxes) {
+              try {
+                await client.selectMailbox(folder);
 
-              var messages = await client.fetchRecentMessages(
-                messageCount: 10,
-              );
+                var messages = await client.fetchRecentMessages();
 
-              for (var message in messages.messages) {
-                Email email = Email(
-                  id: null,
-                  profileId: profile.id,
-                  sender: message.sender.toString(),
-                  recipients: message.recipients.toString(),
-                  subject: message.decodeSubject() ?? 'No Subject',
-                  text: message.decodeTextPlainPart() ?? '',
-                  html: message.decodeTextHtmlPart() ?? '',
-                  date: message.decodeDate() ?? DateTime.now(),
-                  sequenceId: message.sequenceId ?? 0,
-                  mailbox: folder.name,
-                );
-                databaseHelper.db
-                    .then((db) => email.insert(db))
-                    .then((_) => _loadEmails());
+                for (var message in messages.messages) {
+                  Email email = Email(
+                    id: null,
+                    profileId: profile.id,
+                    sender: message.sender.toString(),
+                    recipients: message.recipients.toString(),
+                    subject: message.decodeSubject() ?? 'No Subject',
+                    text: message.decodeTextPlainPart() ?? '',
+                    html: message.decodeTextHtmlPart() ?? '',
+                    date: message.decodeDate() ?? DateTime.now(),
+                    sequenceId: message.sequenceId ?? 0,
+                    mailbox: folder.name,
+                  );
+                  databaseHelper.db
+                      .then((db) => email.insert(db))
+                      .then((_) => _loadEmails());
+                }
+                Fluttertoast.showToast(msg: 'refreshed ${folder.name}');
+
+              } catch (e) {
+                continue;
               }
-            } catch (e) {
-              continue;
             }
-            // }
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${profile.email} 刷新成功'),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
           } catch (e) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -150,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                   HH,
                   ':',
                   mm
-                ])} ${_emails[i].sender == 'null' ? "" : _emails[i].sender}',
+                ])} · ${_emails[i].mailbox}',
             overflow: TextOverflow.ellipsis,
           ),
           trailing: Icon(Icons.keyboard_arrow_right),
@@ -159,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                 arguments: _emails[i].toMap());
           },
         ),
-        if (i < _emails.length - 1) Divider(), // 只在非最后一项添加分割线
+        if (i < _emails.length - 1) Divider(),
       ]
     ];
 

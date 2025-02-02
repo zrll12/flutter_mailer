@@ -9,7 +9,7 @@ class DatabaseHelper extends ChangeNotifier {
 
   final storage = FlutterSecureStorage();
   final String _dbName = 'flutter_mailer.db';
-  final int _dbVersion = 1;
+  final int _dbVersion = 2;
 
   DatabaseHelper._internal() {
     _init();
