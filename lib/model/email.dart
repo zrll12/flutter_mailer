@@ -59,8 +59,8 @@ class Email {
     // If the email already exists, skip
     final List<Map<String, dynamic>> emails = await db.query(
       'email',
-      where: 'sequenceId = ? AND mailbox = ? AND profileId = ? AND date = ?',
-      whereArgs: [sequenceId, mailbox, profileId, date.toIso8601String()],
+      where: 'subject = ? AND mailbox = ? AND profileId = ? AND date = ?',
+      whereArgs: [subject, mailbox, profileId, date.toIso8601String()],
     );
     if (emails.isNotEmpty) {
       return;
@@ -73,28 +73,37 @@ class Email {
       Database db, {
       List<int>? profileIds,
       List<String>? mailboxes,
+      int limit = 50,
+      int offset = 0,
     }) async {
       String? whereClause;
       List<dynamic> whereArgs = [];
   
       if (profileIds != null && profileIds.isNotEmpty && mailboxes != null && mailboxes.isNotEmpty) {
-        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')}) AND mailbox IN (${List.filled(mailboxes.length, '?').join(',')})';
+        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')}) AND mailbox IN (${List.filled(mailboxes.length, '?').join(',')})'; 
         whereArgs = [...profileIds, ...mailboxes];
       } else if (profileIds != null && profileIds.isNotEmpty) {
-        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')})';
+        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')})'; 
         whereArgs = profileIds;
       } else if (mailboxes != null && mailboxes.isNotEmpty) {
-        whereClause = 'mailbox IN (${List.filled(mailboxes.length, '?').join(',')})';
+        whereClause = 'mailbox IN (${List.filled(mailboxes.length, '?').join(',')})'; 
         whereArgs = mailboxes;
       }
   
-      final List<Map<String, dynamic>> emails = await db.query(
-        'email',
-        where: whereClause,
-        whereArgs: whereArgs,
-        orderBy: 'date DESC',
-      );
-      return emails.map((e) => Email.fromMap(e)).toList();
+      try {
+        final List<Map<String, dynamic>> emails = await db.query(
+          'email',
+          where: whereClause,
+          whereArgs: whereArgs,
+          orderBy: 'date DESC',
+          limit: limit,
+          offset: offset,
+        );
+        return emails.map((e) => Email.fromMap(e)).toList();
+      } catch (e) {
+        print('Error fetching emails: $e');
+        return [];
+      }
     }
 
   static Future<List<String>> getMailboxes(Database db, {int? profileId}) async {

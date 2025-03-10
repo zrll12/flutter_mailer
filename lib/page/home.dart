@@ -19,6 +19,10 @@ class _HomePageState extends State<HomePage> {
   List<Email> _emails = [];
   List<String> _selectedFolders = [];
   List<int> _selectedProfiles = [];
+  int _currentPage = 0;
+  bool _isLoading = false;
+  bool _hasMore = true;
+  static const int _pageSize = 50;
 
   Future<void> _freshEmails() async {
     try {
@@ -125,27 +129,66 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  List<String> _availableFolders = []; // 添加这一行来存储可用的文件夹
+  List<String> _availableFolders = [];
 
   Future<void> _loadEmails() async {
-    databaseHelper.db.then((db) async {
+    if (_isLoading || !_hasMore) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      var db = await databaseHelper.db;
       final profiles = await Profile.getProfiles(db);
       final emails = await Email.getEmails(
         db,
         profileIds: _selectedProfiles.isEmpty ? null : _selectedProfiles,
         mailboxes: _selectedFolders.isEmpty ? null : _selectedFolders,
+        limit: _pageSize,
+        offset: _currentPage * _pageSize,
       );
       final folders = await Email.getMailboxes(
         db,
         profileId: _selectedProfiles.isEmpty ? null : _selectedProfiles.first,
       );
 
-      setState(() {
-        _profiles = profiles;
-        _emails = emails;
-        _availableFolders = folders;
-      });
+      if (mounted) {
+        setState(() {
+          _profiles = profiles;
+          if (_currentPage == 0) {
+            _emails = emails;
+          } else {
+            _emails.addAll(emails);
+          }
+          _availableFolders = folders;
+          _hasMore = emails.length == _pageSize;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('加载邮件失败：${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  void _resetAndReload() {
+    setState(() {
+      _currentPage = 0;
+      _hasMore = true;
+      _emails.clear();
     });
+    _loadEmails();
   }
 
   @override
@@ -184,8 +227,8 @@ class _HomePageState extends State<HomePage> {
                 onChanged: (value) {
                   setState(() {
                     _selectedProfiles = value != null ? [value] : [];
-                    _loadEmails();
                   });
+                  _resetAndReload();
                 },
               ),
             ),
@@ -208,16 +251,15 @@ class _HomePageState extends State<HomePage> {
                 onChanged: (value) {
                   setState(() {
                     _selectedFolders = value != null ? [value] : [];
-                    _loadEmails();
                   });
+                  _resetAndReload();
                 },
               ),
             ),
           ],
         ),
       ),
-      // Existing email list
-      for (var i = 0; i < _emails.length; i++) ...[
+      for (var i = 0; i < _emails.length; i++) ...[        
         ListTile(
           title: Text(_emails[i].subject),
           subtitle: Text(
@@ -241,7 +283,29 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         if (i < _emails.length - 1) Divider(thickness: 0.8, indent: 20, endIndent: 30,),
-      ]
+      ],
+      if (_isLoading)
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      if (!_isLoading && _hasMore)
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  _currentPage++;
+                });
+                _loadEmails();
+              },
+              child: const Text('加载更多'),
+            ),
+          ),
+        ),
     ];
 
     return Scaffold(
