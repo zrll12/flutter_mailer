@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mailer/database.dart';
+import 'package:flutter_mailer/service/profile_service.dart';
 import 'package:flutter_mailer/model/profile.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -10,77 +10,63 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  DatabaseHelper databaseHelper = DatabaseHelper();
+  final ProfileService _profileService = ProfileService();
   List<Profile> _profiles = [];
-  bool loading = true;
+  bool _isLoading = false;
 
-  void addUser(context) {
-    var result = Navigator.pushNamed(context, 'add_profile');
-    result.then((value) => {
-          if (value != null) {
-            databaseHelper.db
-                .then((db) => (value as Profile).insert(db))
-                .then((_) => _readProfile())
-          }
-        });
+  void _addProfile(context) {
+    Navigator.pushNamed(context, 'add_profile').then((value) {
+      if (value != null) {
+        _profileService.addProfile(value as Profile).then((_) => _loadProfiles());
+      }
+    });
   }
 
-  void _readProfile() {
-    setState(() {
-      loading = true;
-    });
-    databaseHelper.db.then((db) => Profile.getProfiles(db)).then((value) {
-      setState(() {
-        _profiles = value;
-        loading = false;
-      });
-    });
+  Future<void> _loadProfiles() async {
+    setState(() => _isLoading = true);
+    try {
+      final profiles = await _profileService.getProfiles();
+      if (mounted) {
+        setState(() {
+          _profiles = profiles;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    _readProfile();
+    _loadProfiles();
   }
 
   @override
   Widget build(BuildContext context) {
-    var list = <Widget>[
-      for (var i = 0; i < _profiles.length; i++) ...[
-        ListTile(
-          title: Text(_profiles[i].email),
-          subtitle: Text(_profiles[i].imapServer),
-          trailing: Icon(Icons.keyboard_arrow_right),
-          onTap: () {
-            Navigator.pushNamed(context, 'profile_details',
-                    arguments: _profiles[i].toJson())
-                .then((result) => {
-                      if (result == true) {_readProfile()}
-                    });
-          },
-        ),
-        if (i < _profiles.length - 1) Divider(),
-      ]
-    ];
-
     return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            if (loading)
-              const CircularProgressIndicator()
-            else
-              Expanded(
-                child: ListView(
-                  children: list,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.separated(
+              itemCount: _profiles.length,
+              separatorBuilder: (context, index) =>
+                  const Divider(thickness: 0.8, indent: 20, endIndent: 30),
+              itemBuilder: (context, index) => ListTile(
+                title: Text(_profiles[index].email),
+                subtitle: Text(_profiles[index].imapServer),
+                trailing: const Icon(Icons.keyboard_arrow_right),
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  'profile_details',
+                  arguments: _profiles[index].toJson(),
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
       floatingActionButton: FloatingActionButton(
-        heroTag: 'add_profile_fab',
-        onPressed: () => addUser(context),
+        onPressed: () => _addProfile(context),
         child: const Icon(Icons.add),
       ),
     );

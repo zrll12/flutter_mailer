@@ -55,7 +55,7 @@ class Email {
     );
   }
 
-  void insert(Database db) async {
+  Future<void> insert(Database db) async {
     // If the email already exists, skip
     final List<Map<String, dynamic>> emails = await db.query(
       'email',
@@ -70,43 +70,50 @@ class Email {
   }
 
   static Future<List<Email>> getEmails(
-      Database db, {
-      List<int>? profileIds,
-      List<String>? mailboxes,
-      int limit = 50,
-      int offset = 0,
-    }) async {
-      String? whereClause;
-      List<dynamic> whereArgs = [];
-  
-      if (profileIds != null && profileIds.isNotEmpty && mailboxes != null && mailboxes.isNotEmpty) {
-        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')}) AND mailbox IN (${List.filled(mailboxes.length, '?').join(',')})'; 
-        whereArgs = [...profileIds, ...mailboxes];
-      } else if (profileIds != null && profileIds.isNotEmpty) {
-        whereClause = 'profileId IN (${List.filled(profileIds.length, '?').join(',')})'; 
-        whereArgs = profileIds;
-      } else if (mailboxes != null && mailboxes.isNotEmpty) {
-        whereClause = 'mailbox IN (${List.filled(mailboxes.length, '?').join(',')})'; 
-        whereArgs = mailboxes;
-      }
-  
-      try {
-        final List<Map<String, dynamic>> emails = await db.query(
-          'email',
-          where: whereClause,
-          whereArgs: whereArgs,
-          orderBy: 'date DESC',
-          limit: limit,
-          offset: offset,
-        );
-        return emails.map((e) => Email.fromMap(e)).toList();
-      } catch (e) {
-        print('Error fetching emails: $e');
-        return [];
-      }
+    Database db, {
+    List<int>? profileIds,
+    List<String>? mailboxes,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    String? whereClause;
+    List<dynamic> whereArgs = [];
+
+    if (profileIds != null &&
+        profileIds.isNotEmpty &&
+        mailboxes != null &&
+        mailboxes.isNotEmpty) {
+      whereClause =
+          'profileId IN (${List.filled(profileIds.length, '?').join(',')}) AND mailbox IN (${List.filled(mailboxes.length, '?').join(',')})';
+      whereArgs = [...profileIds, ...mailboxes];
+    } else if (profileIds != null && profileIds.isNotEmpty) {
+      whereClause =
+          'profileId IN (${List.filled(profileIds.length, '?').join(',')})';
+      whereArgs = profileIds;
+    } else if (mailboxes != null && mailboxes.isNotEmpty) {
+      whereClause =
+          'mailbox IN (${List.filled(mailboxes.length, '?').join(',')})';
+      whereArgs = mailboxes;
     }
 
-  static Future<List<String>> getMailboxes(Database db, {int? profileId}) async {
+    try {
+      final List<Map<String, dynamic>> emails = await db.query(
+        'email',
+        where: whereClause,
+        whereArgs: whereArgs,
+        orderBy: 'date DESC',
+        limit: limit,
+        offset: offset,
+      );
+      return emails.map((e) => Email.fromMap(e)).toList();
+    } catch (e) {
+      print('Error fetching emails: $e');
+      return [];
+    }
+  }
+
+  static Future<List<String>> getMailboxes(Database db,
+      {int? profileId}) async {
     String? whereClause;
     List<dynamic> whereArgs = [];
 
@@ -123,7 +130,7 @@ class Email {
       whereArgs: whereArgs,
       orderBy: 'mailbox ASC',
     );
-    
+
     return results.map((e) => e['mailbox'] as String).toList();
   }
 }
