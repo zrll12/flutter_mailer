@@ -25,16 +25,16 @@ class SettingPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认重置'),
-        content: const Text('将删除所有数据库记录，该操作不可恢复！'),
+        title: const Text('Confirm Reset'),
+        content: const Text('Are you sure you want to reset the database? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('确认重置', style: TextStyle(color: Colors.red)),
+            child: const Text('Confirm', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -54,31 +54,29 @@ class SettingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: ListView.separated(
-      itemCount: 3,
-      separatorBuilder: (context, index) =>
-          const Divider(thickness: 0.8, indent: 20, endIndent: 30),
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return ListTile(
-            title: const Text('Export Database'),
-            trailing: const Icon(Icons.keyboard_arrow_right),
-            onTap: _exportDatabase,
-          );
-        } else if (index == 1) {
-          return ListTile(
-            title: const Text('重置数据库'),
-            trailing: const Icon(Icons.keyboard_arrow_right),
-            onTap: () => _resetDatabase(context),
-          );
-        } else {
-          return ListTile(
-            title: const Text('开源软件'),
-            trailing: const Icon(Icons.keyboard_arrow_right),
-            onTap: () => Navigator.pushNamed(context, 'opensource'),
-          );
-        }
-      },
+        body: ListView(
+      children: [
+        ListTile(
+          title: const Text('Export Database'),
+          trailing: const Icon(Icons.keyboard_arrow_right),
+          onTap: _exportDatabase,
+        ),
+        ListTile(
+          title: const Text('Reset Database'),
+          trailing: const Icon(Icons.keyboard_arrow_right),
+          onTap: () => _resetDatabase(context),
+        ),
+        ListTile(
+          title: const Text('Opensource Licenses'),
+          trailing: const Icon(Icons.keyboard_arrow_right),
+          onTap: () => Navigator.pushNamed(context, 'opensource'),
+        ),
+        ListTile(
+          title: const Text("About"),
+          trailing: const Icon(Icons.keyboard_arrow_right),
+          onTap: () => Navigator.pushNamed(context, 'about'),
+        )
+      ],
     ));
   }
 }

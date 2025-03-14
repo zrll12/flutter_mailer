@@ -2,6 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/page/opensource.dart';
 
+import 'page/about.dart';
 import 'page/email/email_details.dart';
 import 'page/profile/add_profile.dart';
 import 'page/profile/profile_details.dart';
@@ -55,6 +56,7 @@ class FlutterMailer extends StatelessWidget {
             'profile_details': (context) => ProfileDetails(),
             'email_details': (context) => EmailDetails(),
             'opensource': (context) => const OpenSourcePage(),
+            'about': (context) => const AboutPage(),
           },
           debugShowCheckedModeBanner: false,
         );
