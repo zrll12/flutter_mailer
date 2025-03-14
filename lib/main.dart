@@ -1,6 +1,7 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/page/opensource.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'page/about.dart';
 import 'page/email/email_details.dart';
@@ -59,6 +60,8 @@ class FlutterMailer extends StatelessWidget {
             'about': (context) => const AboutPage(),
           },
           debugShowCheckedModeBanner: false,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
         );
       },
     );

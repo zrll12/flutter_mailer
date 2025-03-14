@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_secure_storage: ^9.2.4
   encrypt: ^5.0.3
   cupertino_icons: ^1.0.8
@@ -43,6 +45,7 @@ dependencies:
   fluttertoast: ^8.2.10
   dynamic_color: ^1.7.0
   share_plus: ^7.2.2
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -60,12 +63,11 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
+  generate: true
 
+flutter_intl:
+  enabled: true
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

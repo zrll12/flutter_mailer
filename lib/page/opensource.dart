@@ -5,6 +5,7 @@ import 'package:flutter_mailer/licenses/BSD3Clause.dart';
 import 'package:flutter_mailer/licenses/MIT.dart';
 import 'package:flutter_mailer/licenses/MPL2.0.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OpenSourcePage extends StatelessWidget {
   const OpenSourcePage({super.key});
@@ -47,7 +48,7 @@ class OpenSourcePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('开源软件'),
+        title: Text(AppLocalizations.of(context)!.settings_opensource_licenses),
       ),
       body: ListView(
         children: lincences.entries.map((entry) {
@@ -60,7 +61,7 @@ class OpenSourcePage extends StatelessWidget {
                     onTap: () => _launchPackageUrl(package),
                   )),
               ListTile(
-                title: const Text('查看协议内容'),
+                title: Text(AppLocalizations.of(context)!.settings_opensource_licenses_content),
                 trailing: const Icon(Icons.keyboard_arrow_right),
                 onTap: () {
                   Navigator.push(

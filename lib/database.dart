@@ -27,7 +27,7 @@ class DatabaseHelper extends ChangeNotifier {
       version: _dbVersion,
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
-          await _db.execute('''
+          await db.execute('''
           CREATE TABLE IF NOT EXISTS profile (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT,
@@ -38,7 +38,7 @@ class DatabaseHelper extends ChangeNotifier {
           )
         ''');
 
-          await _db.execute('''
+          await db.execute('''
           CREATE TABLE IF NOT EXISTS email (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             mailbox TEXT,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_mailer/database.dart';
 
 import '../../model/profile.dart';
@@ -20,7 +21,6 @@ class _ProfileDetailsState extends State<ProfileDetails> {
   bool useSSL = false;
   int id = 0;
 
-  // 添加控制器作为成员变量
   late TextEditingController emailController;
   late TextEditingController smtpController;
   late TextEditingController imapController;
@@ -52,16 +52,16 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: Text('Delete Profile'),
-              content: Text('Are you sure you want to delete this profile?'),
+              title: Text(AppLocalizations.of(context)!.profile_delete_confirm_title),
+              content: Text(AppLocalizations.of(context)!.profile_delete_confirm_message),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: Text('No'),
+                  child: Text(AppLocalizations.of(context)!.profile_delete_cancel),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: Text('Yes'),
+                  child: Text(AppLocalizations.of(context)!.profile_delete_confirm),
                 ),
               ],
             )).then((value) {
@@ -110,17 +110,17 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     if (args == null) {
       return Scaffold(
           appBar: AppBar(
-            title: Text('Profile Detail'),
+            title: Text(AppLocalizations.of(context)!.profile_detail),
           ),
           body: Center(
-            child: Text('No data'),
+            child: Text(AppLocalizations.of(context)!.profile_detail_no_data),
           ));
     }
 
     // 删除这里重复设置值的代码
     return Scaffold(
         appBar: AppBar(
-          title: Text('Profile Detail'),
+          title: Text(AppLocalizations.of(context)!.profile_detail),
         ),
         body: Container(
           margin: const EdgeInsets.only(left: 40, right: 40, top: 20),
@@ -131,8 +131,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                 children: [
                   TextField(
                     controller: emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.profile_email,
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -143,7 +143,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                   TextField(
                     controller: smtpController,
                     decoration: InputDecoration(
-                      labelText: 'SMTP Server',
+                      labelText: AppLocalizations.of(context)!.profile_smtp_server,
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -154,7 +154,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                   TextField(
                     controller: imapController,
                     decoration: InputDecoration(
-                      labelText: 'IMAP Server',
+                      labelText: AppLocalizations.of(context)!.profile_imap_server,
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -164,7 +164,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                   ),
                   TextField(
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: AppLocalizations.of(context)!.profile_password,
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -174,7 +174,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                   ),
                   Row(
                     children: [
-                      const Text('Use SSL'),
+                      Text(AppLocalizations.of(context)!.profile_use_ssl),
                       Spacer(),
                       Switch(
                         value: useSSL,
@@ -190,10 +190,10 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                     children: [
                       OutlinedButton(
                           onPressed: () => deleteProfile(oldEmail, context),
-                          child: Text('Delete')),
+                          child: Text(AppLocalizations.of(context)!.profile_delete)),
                       Spacer(),
                       FilledButton(
-                          onPressed: updateProfile, child: Text('Save')),
+                          onPressed: updateProfile, child: Text(AppLocalizations.of(context)!.profile_save)),
                     ],
                   )
                 ],

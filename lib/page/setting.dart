@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:path/path.dart' as path;
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path/path.dart' as path;
+import 'package:share_plus/share_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
 class SettingPage extends StatelessWidget {
@@ -25,16 +26,16 @@ class SettingPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm Reset'),
-        content: const Text('Are you sure you want to reset the database? This action cannot be undone.'),
+        title: Text(AppLocalizations.of(context)!.settings_reset_confirm_title),
+        content: Text(AppLocalizations.of(context)!.settings_reset_confirm_message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.settings_reset_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirm', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.settings_reset_confirm, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -46,7 +47,7 @@ class SettingPage extends StatelessWidget {
         await deleteDatabase(dbPath);
         exit(0);
       } catch (e) {
-        debugPrint('重置数据库失败: $e');
+        debugPrint('Failed to reset database: $e');
       }
     }
   }
@@ -57,22 +58,22 @@ class SettingPage extends StatelessWidget {
         body: ListView(
       children: [
         ListTile(
-          title: const Text('Export Database'),
+          title: Text(AppLocalizations.of(context)!.settings_export_database),
           trailing: const Icon(Icons.keyboard_arrow_right),
           onTap: _exportDatabase,
         ),
         ListTile(
-          title: const Text('Reset Database'),
+          title: Text(AppLocalizations.of(context)!.settings_reset_database),
           trailing: const Icon(Icons.keyboard_arrow_right),
           onTap: () => _resetDatabase(context),
         ),
         ListTile(
-          title: const Text('Opensource Licenses'),
+          title: Text(AppLocalizations.of(context)!.settings_opensource_licenses),
           trailing: const Icon(Icons.keyboard_arrow_right),
           onTap: () => Navigator.pushNamed(context, 'opensource'),
         ),
         ListTile(
-          title: const Text("About"),
+          title: Text(AppLocalizations.of(context)!.settings_about),
           trailing: const Icon(Icons.keyboard_arrow_right),
           onTap: () => Navigator.pushNamed(context, 'about'),
         )

@@ -1,0 +1,44 @@
+{
+  "@@locale": "zh",
+
+
+  "tab_home": "主页",
+  "tab_profile": "账户",
+  "tab_settings": "设置",
+
+
+  "home_all_accounts": "所有账户",
+  "home_all_folders": "所有文件夹",
+  "home_load_more": "加载更多",
+
+
+  "profile_add_profile": "添加账户",
+  "profile_email": "邮箱",
+  "profile_password": "密码",
+  "profile_smtp_server": "SMTP 服务器",
+  "profile_imap_server": "IMAP 服务器",
+  "profile_use_ssl": "使用 SSL",
+  "profile_delete": "删除",
+  "profile_save": "保存",
+  "profile_detail": "账户详情",
+  "profile_detail_no_data": "无数据",
+
+  "profile_delete_confirm_title": "删除账户",
+  "profile_delete_confirm_message": "你确定要删除该帐号吗?",
+  "profile_delete_confirm": "删除",
+  "profile_delete_cancel": "取消",
+
+
+  "settings_export_database": "导出数据库",
+  "settings_reset_database": "重置数据库",
+  "settings_opensource_licenses": "开源许可证",
+  "settings_opensource_licenses_content": "许可证内容",
+  "settings_about": "关于",
+  "settings_version": "版本",
+  "settings_description": "一个使用 Flutter 构建的简单邮件客户端应用。",
+
+  "settings_reset_confirm_title": "重置数据库",
+  "settings_reset_confirm_message": "确定要重置数据库吗? 此操作无法撤销。",
+  "settings_reset_confirm": "重置",
+  "settings_reset_cancel": "取消"
+}

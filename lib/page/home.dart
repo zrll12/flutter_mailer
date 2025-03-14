@@ -1,5 +1,6 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_mailer/model/email.dart';
 import 'package:flutter_mailer/model/profile.dart';
 import 'package:flutter_mailer/service/email_service.dart';
@@ -69,7 +70,7 @@ class _HomePageState extends State<HomePage> {
     _loadEmails();
   }
 
-  Widget _buildFilterRow() {
+  Widget _buildFilterRow(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -77,12 +78,11 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: DropdownButton<int>(
               isExpanded: true,
-              hint: const Text('Select Account'),
               value: _selectedProfiles.isEmpty ? null : _selectedProfiles.first,
               items: [
-                const DropdownMenuItem<int>(
+                DropdownMenuItem<int>(
                   value: null,
-                  child: Text('All Accounts'),
+                  child: Text(AppLocalizations.of(context)!.home_all_accounts),
                 ),
                 ..._profiles.map((profile) => DropdownMenuItem<int>(
                       value: profile.id,
@@ -94,7 +94,8 @@ class _HomePageState extends State<HomePage> {
                     )),
               ],
               onChanged: (value) {
-                setState(() => _selectedProfiles = value != null ? [value] : []);
+                setState(
+                    () => _selectedProfiles = value != null ? [value] : []);
                 _resetAndReload();
               },
             ),
@@ -103,12 +104,11 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: DropdownButton<String>(
               isExpanded: true,
-              hint: const Text('Select Folder'),
               value: _selectedFolders.isEmpty ? null : _selectedFolders.first,
               items: [
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: null,
-                  child: Text('All Folders'),
+                  child: Text(AppLocalizations.of(context)!.home_all_folders),
                 ),
                 ..._availableFolders.map((folder) => DropdownMenuItem<String>(
                       value: folder,
@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                 setState(() => _currentPage++);
                 _loadEmails();
               },
-              child: const Text('加载更多'),
+              child: Text(AppLocalizations.of(context)!.home_load_more),
             ),
           );
         }
@@ -151,7 +151,17 @@ class _HomePageState extends State<HomePage> {
         return ListTile(
           title: Text(email.subject),
           subtitle: Text(
-            '${formatDate(email.date, [yyyy, '-', mm, '-', dd, ' ', HH, ':', mm])} · ${email.mailbox}',
+            '${formatDate(email.date, [
+                  yyyy,
+                  '-',
+                  mm,
+                  '-',
+                  dd,
+                  ' ',
+                  HH,
+                  ':',
+                  mm
+                ])} · ${email.mailbox}',
             overflow: TextOverflow.ellipsis,
           ),
           trailing: const Icon(Icons.keyboard_arrow_right),
@@ -171,7 +181,7 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: Column(
           children: [
-            _buildFilterRow(),
+            _buildFilterRow(context),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {

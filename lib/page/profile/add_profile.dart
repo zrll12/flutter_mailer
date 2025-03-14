@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_mailer/model/profile.dart';
 
 class AddProfilePage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Profile'),
+        title: Text(AppLocalizations.of(context)!.profile_add_profile),
       ),
       body: Container(
         margin: const EdgeInsets.only(left: 40, right: 40, top: 20),
@@ -50,8 +51,8 @@ class _AddProfilePageState extends State<AddProfilePage> {
             spacing: 15,
             children: [
               TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Email',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.profile_email,
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -62,7 +63,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
               TextField(
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: AppLocalizations.of(context)!.profile_password,
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -72,7 +73,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
               ),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'SMTP Server',
+                  labelText: AppLocalizations.of(context)!.profile_smtp_server,
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -82,7 +83,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
               ),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'IMAP Server',
+                  labelText: AppLocalizations.of(context)!.profile_imap_server,
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -92,7 +93,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
               ),
               Row(
                 children: [
-                  const Text('Use SSL'),
+                  Text(AppLocalizations.of(context)!.profile_use_ssl),
                   Spacer(),
                   Switch(
                     value: useSSL,
@@ -112,7 +113,7 @@ class _AddProfilePageState extends State<AddProfilePage> {
                         _isLoading
                     ? null
                     : addProfile,
-                child: const Text('Add Profile'),
+                child: Text(AppLocalizations.of(context)!.profile_add_profile),
               ),
             ],
           ),
