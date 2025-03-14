@@ -10,11 +10,9 @@ class Email {
   final DateTime date;
   final String mailbox;
   final int profileId;
-  final int sequenceId;
 
   Email({
     required this.id,
-    required this.sequenceId,
     required this.mailbox,
     required this.profileId,
     required this.text,
@@ -28,7 +26,6 @@ class Email {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'sequenceId': sequenceId,
       'profileId': profileId,
       'subject': subject,
       'sender': sender,
@@ -43,7 +40,6 @@ class Email {
   static Email fromMap(Map<String, dynamic> map) {
     return Email(
       id: map['id'],
-      sequenceId: map['sequenceId'],
       profileId: map['profileId'],
       subject: map['subject'],
       sender: map['sender'],

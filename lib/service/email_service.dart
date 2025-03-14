@@ -107,7 +107,6 @@ class EmailService {
             text: message.decodeTextPlainPart() ?? '',
             html: message.decodeTextHtmlPart() ?? '',
             date: message.decodeDate() ?? DateTime.now(),
-            sequenceId: message.sequenceId ?? 0,
             mailbox: folder.name,
           );
           

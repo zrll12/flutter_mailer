@@ -9,7 +9,7 @@ class DatabaseHelper extends ChangeNotifier {
 
   final storage = FlutterSecureStorage();
   final String _dbName = 'flutter_mailer.db';
-  final int _dbVersion = 2;
+  final int _dbVersion = 3;
 
   DatabaseHelper._internal() {
     _init();
@@ -25,9 +25,9 @@ class DatabaseHelper extends ChangeNotifier {
     _db = await openDatabase(
       _dbName,
       version: _dbVersion,
-    );
-
-    await _db.execute('''
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await _db.execute('''
           CREATE TABLE IF NOT EXISTS profile (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT,
@@ -38,12 +38,11 @@ class DatabaseHelper extends ChangeNotifier {
           )
         ''');
 
-    await _db.execute('''
+          await _db.execute('''
           CREATE TABLE IF NOT EXISTS email (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             mailbox TEXT,
             profileId INTEGER,
-            sequenceId INTEGER,
             text TEXT,
             html TEXT,
             subject TEXT,
@@ -52,6 +51,16 @@ class DatabaseHelper extends ChangeNotifier {
             date TEXT
           )
         ''');
+        }
+        if (oldVersion == 2) {
+          // remove sequenceId from email table
+          db.execute('''
+            ALTER TABLE email
+              DROP COLUMN sequenceId;
+          ''');
+        }
+      },
+    );
     
     _initialized = true;
   }
